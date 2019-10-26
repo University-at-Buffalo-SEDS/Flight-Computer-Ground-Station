@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Ground Station</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/OpenLayers.js') }}"></script>
+<script type="text/javascript">
+	var socket = io();
+
+	socket.on('connect', function(msg) {
+		$('#conn-status').text("Connected");
+	})
+
+	socket.on('disconnect', function(msg) {
+		$('#conn-status').text("Disconnected");
+	})
+
+	$(function(){
+		// Displays
+		var displays = [
+			["conn-status", "Connection Status"],
+			["phase", "Phase"],
+			["alt", "Altitude"],
+			["vel", "Velocity"],
+			["acc", "Acceleration"],
+			["batt_v", "Battery Voltage"],
+			["lat", "Latitude"],
+			["lon", "Longitde"],
+			["raw_alt", "Raw Altitude"],
+			["raw_acc", "Raw Acceleration"],
+			["temp", "Temperature"],
+			["time", "Time"],
+		];
+		var el_displays = document.getElementById("displays")
+		for (var i = 0; i < displays.length; ++i) {
+			var id = displays[i][0];
+			var name = displays[i][1];
+			var el_disp = document.createElement("div");
+			el_disp.setAttribute("class", "col-lg-2 col-md-4 col-sm-6 col-xs-12");
+			var el_card = document.createElement("div");
+			el_card.setAttribute("class", "card text-white bg-info");
+			var el_body = document.createElement("div");
+			el_body.setAttribute("class", "card-body");
+			var el_val = document.createElement("div");
+			el_val.setAttribute("id", id);
+			el_val.setAttribute("class", "text-value");
+			var el_name = document.createElement("div");
+			el_name.setAttribute("class", "font-x1");
+			el_name.innerText = name;
+			el_body.appendChild(el_val);
+			el_body.appendChild(el_name);
+			el_card.appendChild(el_body);
+			el_disp.appendChild(el_card);
+			el_displays.appendChild(el_disp);
+		}
+
+		socket.on('data', function(msg) {
+			var sec = msg.millis / 1000;
+			$('#packets').html(JSON.stringify(msg));
+			$('#phase').html(msg.phase);
+			$('#vel').html(msg.vel.toFixed(2) + "m/s");
+			$('#acc').html(msg.acc.toFixed(2) + "m/s<sup>2</sup>");
+			$('#raw_acc').html(msg.raw_acc.toFixed(2) + "m/s<sup>2</sup>");
+			$('#alt').html(msg.alt.toFixed(2) + "m");
+			$('#raw_alt').html(msg.raw_alt.toFixed(2) + "m");
+			$('#temp').html(msg.temp.toFixed(1) + "&deg;C");
+			$('#time').html(sec + "s");
+			$('#lat').html(msg.lat.toFixed(2) + "&deg;");
+			$('#lon').html(msg.lon.toFixed(2) + "&deg;");
+			$('#batt_v').html(msg.batt_v.toFixed(3) + "V");
+		});
+
+		// Map
+		var mapnik = new OpenLayers.Layer.OSM(); // OpenStreetMap
+		var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+		var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+		var init_position  = new OpenLayers.LonLat(-78.7890, 43.0008)
+			.transform(fromProjection, toProjection);
+		var zoom = 15; 
+
+		var map = new OpenLayers.Map("map");
+		map.addLayer(mapnik);
+
+		// rocket marker setup
+		var size = new OpenLayers.Size(32, 32);
+		var offset = new OpenLayers.Pixel(-(size.w/2), -(size.h/2));
+		var icon = new OpenLayers.Icon("{{ url_for('static', filename='img/marker.png') }}", size, offset);
+		var markers = new OpenLayers.Layer.Markers("Markers");
+		var marker = new OpenLayers.Marker(init_position, icon);
+		markers.addMarker(marker);
+		var vector = new OpenLayers.Layer.Vector();
+		map.addLayers([vector, markers]);
+		map.setCenter(init_position, zoom);
+
+		var last_lat = null, last_lon = null;
+		socket.on('data', function(msg) {
+			// Plot line
+			if (last_lat != null && last_lon != null) {
+				var start_point = new OpenLayers.Geometry.Point(last_lon, last_lat)
+					.transform(fromProjection, toProjection);
+				var end_point = new OpenLayers.Geometry.Point(msg.lon, msg.lat)
+					.transform(fromProjection, toProjection);
+				var line = new OpenLayers.Geometry.LineString([start_point, end_point]);
+				var line_vec = new OpenLayers.Feature.Vector(line, null, {strokeWidth : 3});
+				vector.addFeatures([line_vec]);
+			}
+
+			// Plot marker
+			var cur_pos = new OpenLayers.LonLat(msg.lon, msg.lat)
+				.transform(fromProjection, toProjection);
+			markers.addMarker(new OpenLayers.Marker(cur_pos, icon));
+
+			last_lon = msg.lon;
+			last_lat = msg.lat;
+
+			map.zoomToExtent(vector.getDataExtent());
+		});
+
+		// Chart
+		var data_points = [];
+		var options = {
+			type : 'line',
+			data: {
+				datasets: [{
+					backgroundColor: 'rgba(255, 99, 132, 0.5)',
+					borderColor: 'rgb(255, 99, 132)',
+					fill: false,
+					data: data_points,
+				}]
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Projectile'
+				},
+				legend: {
+					display: false,
+				},
+				scales: {
+					xAxes: [{
+						ticks: {
+							beginAtZero: false,
+						},
+						type: 'linear',
+						scaleLabel: {
+							display: true,
+							labelString: 'Time (s)'
+						}
+					}],
+					yAxes: [{
+						ticks: {
+							beginAtZero: true,
+							max: 12000
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Altitude (m)'
+						}
+					}]
+				}
+			}
+		};
+		var ctx = document.getElementById('projectile_canvas').getContext('2d');
+		var altChart = new Chart(ctx, options);
+		socket.on('data', function(msg){
+			var sec = msg.millis / 1000;
+			data_points.push({
+				x: sec,
+				y: msg.alt
+			});
+			altChart.update();
+		});
+	})
+</script>
+</head>
+<body>
+<div class="container-fluid">
+	<div id="displays" class="row"></div>
+	<div class="row">
+		<div class="col-lg-8 col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<h4 class="card-title mb-0">Map</h4>
+					<div class="chart-wrapper" style="height:535px; margin-top:5px">
+						<div id="map" style="height:535px"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<h4 class="card-title mb-0">Graph</h4>
+					<div class="chart-wrapper" style="height:535px;margin-top:5px;">
+						<canvas id="projectile_canvas" style="margin: auto; display: block; height: 100%"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-body">
+			<div class="row">
+				<div class="col-sm-12">
+					<h4 class="card-title mb-0">Packet</h4>
+					<textarea id="packets" placeholder="Nothing received..."
+						style="width:100%; height:2em" spellcheck="false"></textarea>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
