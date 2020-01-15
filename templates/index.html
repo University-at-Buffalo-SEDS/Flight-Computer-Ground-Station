@@ -22,6 +22,7 @@
 		// Displays
 		var displays = [
 			["conn-status", "Connection Status"],
+			["apogee", "Apogee"],
 			["phase", "Phase"],
 			["alt", "Altitude"],
 			["vel", "Velocity"],
@@ -60,6 +61,7 @@
 		socket.on('data', function(msg) {
 			var sec = msg.millis / 1000;
 			$('#packets').html(JSON.stringify(msg));
+			$('#apogee').html(msg.apogee);
 			$('#phase').html(msg.phase);
 			$('#vel').html(msg.vel.toFixed(2) + "m/s");
 			$('#acc').html(msg.acc.toFixed(2) + "m/s<sup>2</sup>");

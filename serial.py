@@ -7,7 +7,7 @@ from . import app, socketio
 
 class Parser:
     SYNC_WORD = b"\xdb\x69\xc0\x78"
-    PKT_LEN = 39
+    PKT_LEN = 41
     FLIGHT_PHASES = [
         "Startup",
         "Idle",
@@ -49,17 +49,16 @@ class Parser:
             # Pull the next packet out of the buffer
             pkt_bytes = self.buf[self.sync_idx:self.sync_idx + self.PKT_LEN]
             self.sync_idx += self.PKT_LEN
-            (temp, millis, alt, vel, acc, raw_alt, raw_acc, lat, lon, batt_mv, phase, cksum) = struct.unpack("<iIfffffffHBB", pkt_bytes)
+            (millis, alt, vel, acc, raw_alt, raw_acc, lat, lon, apogee, temp, batt_mv, phase, cksum) = struct.unpack("<IffffffffhHBB", pkt_bytes)
 
             # Reset sync if we get an invalid packet
-            if phase >= len(self.FLIGHT_PHASES) or temp > 100000 or \
+            if phase >= len(self.FLIGHT_PHASES) or \
                     not self.checksum(pkt_bytes[:self.PKT_LEN-1], cksum):
                 self.have_sync = False
                 self.sync()
                 continue
 
             packets.append({
-                "temp": temp / 100,  # Convert to Celsius
                 "millis": millis,
                 "alt": alt,
                 "vel": vel,
@@ -68,6 +67,8 @@ class Parser:
                 "raw_acc": raw_acc,
                 "lat": lat,
                 "lon": lon,
+                "apogee": apogee,
+                "temp": temp / 100,  # Convert to Celsius
                 "batt_v": batt_mv / 1000,  # Convert from mV to V
                 "phase": self.FLIGHT_PHASES[phase]
             })
@@ -108,7 +109,7 @@ def read_thread():
     log_filename = datetime.now().strftime("%Y%m%dT%H%M%S.log")
     with open(log_filename, "a") as log_file:
         while True:
-            buf = s.read(32)
+            buf = s.read(parser.PKT_LEN)
             data = parser.parse(buf)
             for msg in data:
                 print(msg)
