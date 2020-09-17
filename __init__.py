@@ -12,6 +12,3 @@ socketio = SocketIO(app)
 from . import views, serial
 
 Thread(target=serial.read_thread).start()
-
-if __name__ == "__main__":
-    socketio.run(app)
