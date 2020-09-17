@@ -1,11 +1,12 @@
-import atexit
+import os
 from datetime import datetime
 from threading import Thread, Event
 from flask import Flask
 from flask_socketio import SocketIO
 
 app = Flask(__name__)
-app.config.from_pyfile("config.py")
+if os.path.exists("config.py"):
+    app.config.from_pyfile("config.py")
 
 socketio = SocketIO(app)
 

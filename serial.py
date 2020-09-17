@@ -135,9 +135,15 @@ class Parser:
 def read_thread():
     parser = Parser()
 
-    port = app.config.get("PORT", None)
+    port = app.config.get("SERIAL_PORT", None)
     if port is None:
-        port = comports()[0].device
+        ports = comports()
+        if len(ports) == 1:
+            port = ports[0].device
+            app.logger.warn("Defaulting to serial port %s", port)
+        else:
+            app.logger.warn("Unable to determine serial port to use.  Set SERIAL_PORT in config.py")
+            return
 
     print(f"Connecting to {port}")
     s = serial.Serial(port, baudrate=115200)
