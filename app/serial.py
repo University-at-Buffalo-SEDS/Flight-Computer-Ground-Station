@@ -3,7 +3,7 @@ import serial
 import json
 from datetime import datetime
 from serial.tools.list_ports import comports
-from . import app, socketio
+from .app import app, socketio
 
 crc_table = [
     0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15,
@@ -149,7 +149,7 @@ def read_thread():
     s = serial.Serial(port, baudrate=115200)
 
     log_filename = datetime.now().strftime("%Y%m%dT%H%M%S.log")
-    with open(log_filename, "a") as log_file:
+    with open(log_filename, "a", encoding="utf-8") as log_file:
         while True:
             buf = s.read(parser.PKT_LEN)
             data = parser.parse(buf)
