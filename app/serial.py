@@ -146,7 +146,11 @@ def read_thread():
             return
 
     print(f"Connecting to {port}")
-    s = serial.Serial(port, baudrate=115200)
+    try:
+        s = serial.Serial(port, baudrate=115200)
+    except:
+        app.logger.warn("Could not connect to port %s", port)
+        return
 
     log_filename = datetime.now().strftime("%Y%m%dT%H%M%S.log")
     with open(log_filename, "a", encoding="utf-8") as log_file:
