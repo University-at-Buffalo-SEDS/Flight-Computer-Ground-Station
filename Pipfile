@@ -6,6 +6,7 @@ verify_ssl = true
 [packages]
 flask-socketio = "*"
 pyserial = "*"
+colorama = "*"
 
 [requires]
 python_version = "3.11"
