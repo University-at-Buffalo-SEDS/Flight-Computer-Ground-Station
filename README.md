@@ -26,3 +26,15 @@ py -m pipenv run python -m app
 
 The `SERIAL_PORT` config option should be set to the Windows `COM` device name,
 e.g. `SERIAL_PORT = "COM0"`.
+
+
+## Todo
+
+[ ] Graphs for every value
+[ ] Add gyroscope XYZ
+[ ] Add Acceleration XYZ
+[ ] Time Since last packet
+[ ] Optional: Weather
+[ ] Optional: Dark Mode
+[ ] Optional: Update libraries
+[ ] Very Optional: 3D rocket model that rotates with data.
