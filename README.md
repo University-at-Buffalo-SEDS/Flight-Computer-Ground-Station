@@ -38,3 +38,11 @@ e.g. `SERIAL_PORT = "COM0"`.
 [ ] Optional: Dark Mode
 [ ] Optional: Update libraries
 [ ] Very Optional: 3D rocket model that rotates with data.
+
+## venv setup
+1. Create venv: To create your venv, type "python3 -m venv groundstation-venv" into your terminal
+2. Activate venv: 
+    MacOS/Unix: Type "source groundstation-venv/bin/activate" into your terminal 
+    Windows: Type "groundstation-venv\Scripts\activate" into your terminal
+3. Download required packages: Type "pip install -r requirements.txt" into your terminal
+4. To deactivate venv: Type "deactivate" into your console
