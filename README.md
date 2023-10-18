@@ -1,19 +1,36 @@
-UB SEDS Flight Computer Ground Station
+# UB SEDS Flight Computer Ground Station
 ===
 
-Setup
+## Setup via `venv`
 ---
 
-  * Install `pipenv` using your package manager or with `pip install pipenv`.
-  * Run `pipenv sync` to set up the virtualenv.
-  * Connect the radio serial adapter.
-  * Run `pipenv run python -m app` to start the server.
-  * Open the address that it prints in your web browser.
+  1. Create venv: To create your venv, type `python3 -m venv groundstation-venv` into your terminal
+  2. Activate venv:
+      - MacOS/Unix: Type `source groundstation-venv/bin/activate` into your terminal 
+      - Windows: Type `groundstation-venv\Scripts\activate` into your terminal
+  3. Download required packages: Type `pip install -r requirements.txt` into your terminal
+  5. To deactivate venv: Type `deactivate` into your console
+
+### Running via `venv`
+
+  1. Connect the radio serial adapter if connecting to flight computer
+      - Configure `app/config.py` to the correct COM or ttyUSB port if needed.
+  2. Run `python -m app` to start the server.
+  3. Open the address that it prints in your web browser.
+
+## Setup via `pipenv` 
+---
+
+  1. Install `pipenv` using your package manager or with `pip install pipenv`.
+  2. Run `pipenv sync` to set up the virtualenv.
+  3. Connect the radio serial adapter.
+  4. Run `pipenv run python -m app` to start the server.
+  5. Open the address that it prints in your web browser.
 
 You might have to set the serial port that the server listens on by creating
 `app/config.py` and setting `SERIAL_PORT = "/dev/ttyUSB0"` or similar.
 
-### Windows
+#### Windows Troubleshooting
 
 Instead of running `pip` directly you can call it as a module through the
 Windows `py` wrapper as `py -m pip`.
@@ -29,12 +46,13 @@ e.g. `SERIAL_PORT = "COM0"`.
 
 
 ## Todo
+---
 
-[ ] Graphs for every value
-[ ] Add gyroscope XYZ
-[ ] Add Acceleration XYZ
-[ ] Time Since last packet
-[ ] Optional: Weather
-[ ] Optional: Dark Mode
-[ ] Optional: Update libraries
-[ ] Very Optional: 3D rocket model that rotates with data.
+- [ ] Graphs for every value
+- [ ] Add gyroscope XYZ
+- [ ] Add Acceleration XYZ
+- [ ] Time Since last packet
+- [ ] Optional: Weather
+- [ ] Optional: Dark Mode
+- [ ] Optional: Update libraries
+- [ ] Very Optional: 3D rocket model that rotates with data.
