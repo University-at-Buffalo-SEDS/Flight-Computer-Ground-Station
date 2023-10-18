@@ -1,4 +1,36 @@
-.vscode/
+### Flask ###
+instance/*
+!instance/.gitignore
+.webassets-cache
+.env
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+lib/
+lib64/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Flask stuff:
+instance/
+
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+.vscode/
 /app/config.py
 *.log
+
+bin/
+pyvenv.cfg
