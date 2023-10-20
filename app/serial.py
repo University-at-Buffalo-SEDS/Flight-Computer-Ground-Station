@@ -1,6 +1,7 @@
 import struct
 import serial
 import json
+import time
 from datetime import datetime
 from serial.tools.list_ports import comports
 from .app import app, socketio
@@ -150,7 +151,8 @@ def read_thread():
         s = serial.Serial(port, baudrate=115200)
     except:
         app.logger.warn("Could not connect to port %s", port)
-        return
+        app.logger.warn("Using 'replay.log' instead")
+        replay_log()
 
     log_filename = datetime.now().strftime("%Y%m%dT%H%M%S.log")
     with open(log_filename, "a", encoding="utf-8") as log_file:
@@ -162,3 +164,19 @@ def read_thread():
                 socketio.emit("data", msg)
                 json.dump(msg, log_file)
                 log_file.write("\n")
+
+def replay_log():
+    # Time to wait for replay
+    time.sleep(2)
+    with open("replay.log", "r", encoding="utf-8") as file:
+        content = file.readlines()
+        line_num = len(content)
+        i = 0
+
+        while True:
+            # sleep to mimic 10 hz that the fc will send packets
+            time.sleep(0.1)
+            msg = json.loads(content[i])
+            # print(msg)
+            socketio.emit("data", msg)
+            i = (i + 1) % line_num
