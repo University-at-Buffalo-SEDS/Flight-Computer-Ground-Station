@@ -49,6 +49,8 @@ e.g. `SERIAL_PORT = "COM0"`.
 ---
 
 - [ ] Graphs for every value
+- [ ] Add different line colors for launch phases
+- [ ] Work with launch phases to mitigate reboot issues
 - [ ] Add gyroscope XYZ
 - [ ] Add Acceleration XYZ
 - [ ] Time Since last packet

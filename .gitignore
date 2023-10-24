@@ -34,3 +34,6 @@ venv.bak/
 
 bin/
 pyvenv.cfg
+.DS_Store
+logs/ground_station.csv
+logs/ground_station_trimmed.csv
