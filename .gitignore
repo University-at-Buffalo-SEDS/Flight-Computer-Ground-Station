@@ -34,3 +34,4 @@ venv.bak/
 
 bin/
 pyvenv.cfg
+.DS_Store
