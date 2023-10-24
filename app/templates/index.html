@@ -99,27 +99,31 @@
 
 		var last_lat = null, last_lon = null;
 		socket.on('data', function(msg) {
+			if (msg.lat != 0 && msg.lon != 0){
+
 			// Plot line
-			if (last_lat != null && last_lon != null) {
-				var start_point = new OpenLayers.Geometry.Point(last_lon, last_lat)
+				if (last_lat != null && last_lon != null) {
+					var start_point = new OpenLayers.Geometry.Point(last_lon, last_lat)
+						.transform(fromProjection, toProjection);
+					var end_point = new OpenLayers.Geometry.Point(msg.lon, msg.lat)
+						.transform(fromProjection, toProjection);
+					var line = new OpenLayers.Geometry.LineString([start_point, end_point]);
+					var line_vec = new OpenLayers.Feature.Vector(line, null, {strokeWidth : 3});
+					vector.addFeatures([line_vec]);
+				}
+
+				// Plot marker
+				var cur_pos = new OpenLayers.LonLat(msg.lon, msg.lat)
 					.transform(fromProjection, toProjection);
-				var end_point = new OpenLayers.Geometry.Point(msg.lon, msg.lat)
-					.transform(fromProjection, toProjection);
-				var line = new OpenLayers.Geometry.LineString([start_point, end_point]);
-				var line_vec = new OpenLayers.Feature.Vector(line, null, {strokeWidth : 3});
-				vector.addFeatures([line_vec]);
-			}
 
-			// Plot marker
-			var cur_pos = new OpenLayers.LonLat(msg.lon, msg.lat)
-				.transform(fromProjection, toProjection);
-			markers.addMarker(new OpenLayers.Marker(cur_pos, icon));
+				markers.addMarker(new OpenLayers.Marker(cur_pos, icon));
 
-			last_lon = msg.lon;
-			last_lat = msg.lat;
 
-			map.zoomToExtent(vector.getDataExtent());
-		});
+				last_lon = msg.lon;
+				last_lat = msg.lat;
+
+				map.zoomToExtent(vector.getDataExtent());
+		}});
 
 		// Chart
 		var data_points = [];
