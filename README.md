@@ -4,13 +4,13 @@
 ## Setup via `venv`
 ---
 
-  1. Create venv: To create your venv, type `python3 -m venv groundstation-venv` into your terminal  
-    Try `python` if `python3` does not work 
-  2. Activate venv:
+  1. Create venv: To create your venv, type `python3 -m venv groundstation-venv` into your terminal
+      - Try `python` if `python3` does not work 
+  3. Activate venv:
       - MacOS/Unix: Type `source groundstation-venv/bin/activate` into your terminal 
       - Windows: Type `groundstation-venv\Scripts\activate` into your terminal  
-        - Windows 11: `Set-ExecutionPolicy -ExecutionPolicy Unrestricted`
-  3. Download required packages: Type `pip install -r requirements.txt` into your terminal
+        - Windows 11: Open Powershell in Admin and run `Set-ExecutionPolicy -ExecutionPolicy Unrestricted`
+  4. Download required packages: Type `pip install -r requirements.txt` into your terminal
   5. To deactivate venv: Type `deactivate` into your console
 
 ### Running via `venv`
@@ -19,6 +19,7 @@
       - Configure `app/config.py` to the correct COM or ttyUSB port if needed.
   2. Run `python -m app` to start the server.
   3. Open the address that it prints in your web browser.
+  4. Repeat step 2 to see changes (looking to solve for automatic reload)
 
 ## Setup via `pipenv` 
 ---
