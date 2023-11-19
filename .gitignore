@@ -27,6 +27,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+groundstation-venv
 
 .vscode/
 /app/config.py
