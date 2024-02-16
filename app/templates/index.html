@@ -9,6 +9,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/OpenLayers.js') }}"></script>
 <script type="text/javascript">
 	var socket = io();
+	let lastpackettime = 0; 
 
 	socket.on('connect', function(msg) {
 		$('#conn-status').text("Connected");
@@ -34,6 +35,7 @@
 			["raw_acc", "Raw Acceleration"],
 			["temp", "Temperature"],
 			["time", "Time"],
+			["last_packet", "Time Since Last Packet"],
 		];
 		var el_displays = document.getElementById("displays")
 		for (var i = 0; i < displays.length; ++i) {
@@ -60,6 +62,7 @@
 
 		socket.on('data', function(msg) {
 			var sec = msg.millis / 1000;
+
 			$('#packets').html(JSON.stringify(msg));
 			$('#apogee').html(msg.apogee);
 			$('#phase').html(msg.phase);
@@ -70,9 +73,12 @@
 			$('#raw_alt').html(msg.raw_alt.toFixed(2) + "m");
 			$('#temp').html(msg.temp.toFixed(1) + "&deg;C");
 			$('#time').html(sec + "s");
+			$('#last_packet').html((msg.millis - lastpackettime) + "ms");
 			$('#lat').html(msg.lat.toFixed(4) + "&deg;");
 			$('#lon').html(msg.lon.toFixed(4) + "&deg;");
 			$('#batt_v').html(msg.batt_v.toFixed(3) + "V");
+
+			lastpackettime=msg.millis; 
 		});
 
 		// Map
@@ -136,7 +142,7 @@
 			options: {
 				title: {
 					display: true,
-					text: 'Projectile'
+					text: 'Projectile - Testing1'
 				},
 				legend: {
 					display: false,
